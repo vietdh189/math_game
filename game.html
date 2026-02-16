@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Toán lớp 3 – Chu vi & Diện tích</title>
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background: #e0f7fa;
+    font-family: Arial, sans-serif;
+}
+
+.board {
+    max-width: 900px;
+    margin: 20px auto;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    padding: 20px;
+}
+
+.header {
+    background: #4fc3f7;
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.content {
+    display: flex;
+    margin-top: 20px;
+}
+
+.left {
+    width: 65%;
+    padding-right: 20px;
+}
+
+.right {
+    width: 35%;
+    background: #fff3e0;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+}
+
+.character {
+    font-size: 80px;
+}
+
+.speech {
+    background: white;
+    border-radius: 12px;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.question {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+canvas {
+    background: #f1f8e9;
+    border: 2px solid #aed581;
+    display: block;
+    margin: 10px 0;
+}
+
+input {
+    padding: 10px;
+    font-size: 18px;
+    width: 200px;
+    border-radius: 8px;
+    border: 2px solid #4fc3f7;
+}
+
+button {
+    padding: 10px 18px;
+    font-size: 18px;
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #43a047;
+}
+
+.result {
+    font-size: 18px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.score {
+    margin-top: 15px;
+    font-size: 18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="board">
+    <div class="header">📐 TOÁN LỚP 3 – CHU VI & DIỆN TÍCH 📏</div>
+
+    <div class="content">
+        <div class="left">
+            <div class="question" id="question"></div>
+            <canvas id="draw" width="350" height="220"></canvas>
+
+            <input type="number" id="answer" placeholder="Nhập đáp án" step="1" inputmode="numeric" autocomplete="off" autofocus>
+            <br>
+            <button id="submitBtn">Trả lời</button>
+
+            <div class="result" id="result"></div>
+            <div class="score">⭐ Điểm: <span id="score">0</span> / 20</div>
+        </div>
+
+        <div class="right">
+            <div class="character" id="char">🐱</div>
+            <div class="speech" id="speech">Chúng mình cùng học Toán nhé!</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const questions = [
+ {q:"Hình chữ nhật dài 6cm, rộng 4cm. Diện tích bao nhiêu?", a:24, t:"rect", w:6, h:4},
+ {q:"Hình chữ nhật dài 6cm, rộng 4cm. Chu vi bao nhiêu?", a:20, t:"rect", w:6, h:4},
+ {q:"Hình chữ nhật dài 8cm, rộng 5cm. Diện tích bao nhiêu?", a:40, t:"rect", w:8, h:5},
+ {q:"Hình chữ nhật dài 10cm, rộng 3cm. Chu vi bao nhiêu?", a:26, t:"rect", w:10, h:3},
+ {q:"Hình chữ nhật chu vi 28cm, dài 8cm. Rộng bao nhiêu?", a:6, t:"rect", w:8, h:6},
+
+ {q:"Hình vuông cạnh 4cm. Diện tích bao nhiêu?", a:16, t:"square", s:4},
+ {q:"Hình vuông cạnh 5cm. Chu vi bao nhiêu?", a:20, t:"square", s:5},
+ {q:"Hình vuông có chu vi 24cm. Cạnh dài bao nhiêu?", a:6, t:"square", s:6},
+ {q:"Hình vuông có diện tích 36cm². Chu vi bao nhiêu?", a:24, t:"square", s:6},
+ {q:"Hình vuông cạnh 7cm. Diện tích bao nhiêu?", a:49, t:"square", s:7},
+
+ {q:"Hình chữ nhật 9cm x 5cm. Diện tích bao nhiêu?", a:45, t:"rect", w:9, h:5},
+ {q:"Hình chữ nhật 12cm x 4cm. Chu vi bao nhiêu?", a:32, t:"rect", w:12, h:4},
+ {q:"Hình chữ nhật diện tích 48cm², rộng 6cm. Dài bao nhiêu?", a:8, t:"rect", w:8, h:6},
+ {q:"Hình chữ nhật dài 15cm, rộng 5cm. Chu vi bao nhiêu?", a:40, t:"rect", w:15, h:5},
+ {q:"Hình chữ nhật 7cm x 6cm. Diện tích bao nhiêu?", a:42, t:"rect", w:7, h:6},
+
+ {q:"Hình vuông cạnh 8cm. Chu vi bao nhiêu?", a:32, t:"square", s:8},
+ {q:"Hình vuông cạnh 9cm. Diện tích bao nhiêu?", a:81, t:"square", s:9},
+ {q:"Hình vuông có chu vi 20cm. Cạnh bao nhiêu?", a:5, t:"square", s:5},
+ {q:"Hình vuông có diện tích 64cm². Cạnh bao nhiêu?", a:8, t:"square", s:8},
+ {q:"Hình vuông cạnh 6cm. Chu vi bao nhiêu?", a:24, t:"square", s:6}
+];
+
+let i = 0;
+let score = 0;
+
+const canvas = document.getElementById("draw");
+const ctx = canvas.getContext("2d");
+const char = document.getElementById("char");
+const speech = document.getElementById("speech");
+const submitBtn = document.getElementById('submitBtn');
+const answerInput = document.getElementById('answer');
+const scoreSpan = document.getElementById('score');
+
+// show dynamic max score
+function updateScoreDisplay() {
+    scoreSpan.innerText = score + ' / ' + questions.length;
+}
+
+function drawShape(q) {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = "#90caf9";
+    ctx.strokeStyle = "#1e88e5";
+    ctx.lineWidth = 3;
+
+    // compute base size in "units" and scale to fit canvas
+    const unit = 12;
+    const shapeW = (q.t === 'rect') ? (q.w * unit) : (q.s * unit);
+    const shapeH = (q.t === 'rect') ? (q.h * unit) : (q.s * unit);
+
+    const padding = 20;
+    const maxW = canvas.width - padding * 2;
+    const maxH = canvas.height - padding * 2;
+
+    const scale = Math.min(maxW / shapeW, maxH / shapeH, 1);
+    const drawW = shapeW * scale;
+    const drawH = shapeH * scale;
+    const x = (canvas.width - drawW) / 2;
+    const y = (canvas.height - drawH) / 2;
+
+    ctx.fillRect(x, y, drawW, drawH);
+    ctx.strokeRect(x, y, drawW, drawH);
+}
+
+function load() {
+    const q = questions[i];
+    document.getElementById("question").innerText = "Bài " + (i+1) + ": " + q.q;
+    document.getElementById("result").innerText = "";
+    answerInput.value = "";
+    answerInput.disabled = false;
+    submitBtn.disabled = false;
+    char.innerText = "🐱";
+    speech.innerText = "Con làm được mà!";
+    drawShape(q);
+    answerInput.focus();
+    updateScoreDisplay();
+}
+
+load();
+function submitAnswer() {
+    const raw = answerInput.value.trim();
+    if (raw === '') {
+        document.getElementById('result').innerText = '⚠️ Vui lòng nhập đáp án!';
+        return;
+    }
+    const user = Number(raw);
+    if (Number.isNaN(user)) {
+        document.getElementById('result').innerText = '⚠️ Giá trị không hợp lệ!';
+        return;
+    }
+
+    const correct = questions[i].a;
+    if (user === correct) {
+        document.getElementById('result').innerText = '✅ Đúng rồi!';
+        char.innerText = '😸';
+        speech.innerText = 'Giỏi lắm!';
+        score++;
+    } else {
+        document.getElementById('result').innerText = '❌ Sai rồi! Đáp án: ' + correct;
+        char.innerText = '😿';
+        speech.innerText = 'Cố gắng lại nhé!';
+    }
+    updateScoreDisplay();
+
+    // move to next question after a short delay
+    i++;
+    if (i < questions.length) {
+        answerInput.disabled = true;
+        submitBtn.disabled = true;
+        setTimeout(load, 1400);
+    } else {
+        // finished
+        answerInput.disabled = true;
+        submitBtn.disabled = true;
+        setTimeout(() => {
+            document.getElementById('question').innerText = '🎉 Hoàn thành trò chơi!';
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            char.innerText = '🎉';
+            speech.innerText = 'Con đã học rất tốt!';
+            document.getElementById('result').innerHTML = '🌟 Tổng điểm: ' + score + '/' + questions.length + '<br><br>' + '<button id="restart">Chơi lại</button>';
+            const restartBtn = document.getElementById('restart');
+            restartBtn.addEventListener('click', restartGame);
+        }, 800);
+    }
+}
+
+function restartGame() {
+    i = 0;
+    score = 0;
+    updateScoreDisplay();
+    load();
+}
+
+// attach handlers
+submitBtn.addEventListener('click', submitAnswer);
+answerInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitAnswer();
+});
+</script>
+
+</body>
+</html>
