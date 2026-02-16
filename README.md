@@ -3,7 +3,7 @@ Math Game
 Trò chơi nhỏ cho học sinh lớp 3 về chu vi và diện tích.
 
 - Mở file `game.html` trong trình duyệt để chơi.
-- Tác giả: (thêm tên nếu muốn).
+- Tác giả: vietdh189
 
 Hướng dẫn nhanh:
 
